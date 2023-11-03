@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="it.exolab.bank.mapper.ContoMapper">
+
+    <select id="findAll" resultMap="contoUtenteResultMap">
+        SELECT c.*, u.*, r.*, sc.*
+        FROM conto c
+        LEFT JOIN utente u ON c.codUtente = u.id
+        LEFT JOIN ruolo r ON u.id = r.id  
+        LEFT JOIN statoconto sc ON c.codStatoConto = sc.id
+    </select>
+
+    <resultMap id="contoUtenteResultMap" type="Conto">
+        <id property="id" column="id" />
+        <result property="iban" column="iban" />
+        <result property="saldo" column="saldo" />
+        <result property="dataApertura" column="dataApertura" />
+        <result property="dataEsito" column="dataEsito" />
+        <association property="utente" javaType="Utente">
+            <id property="id" column="u_id" />
+            <result property="nome" column="u_nome" />
+            <result property="cognome" column="u_cognome" />
+            <result property="dataNascita" column="u_dataNascita" />
+            <result property="genere" column="u_genere" />
+            <result property="email" column="u_email" />
+            <result property="password" column="u_password" />
+            <association property="ruolo" javaType="it.exolab.bank.models.Ruolo">
+                <id property="id" column="r_id" />
+                <result property="tipo" column="r_tipo" />
+            </association>
+        </association>
+        <association property="statoConto" javaType="it.exolab.bank.models.StatoConto">
+            <id property="id" column="sc_id" />
+            <result property="esito" column="sc_esito" />
+        </association>
+    </resultMap>
+
+    <!-- Aggiungi il nuovo metodo findByUserId -->
+    <select id="findByUtenteId" resultMap="contoUtenteResultMap" parameterType="java.lang.Integer">
+        SELECT c.*, u.id AS u_id, u.nome AS u_nome, u.cognome AS u_cognome,
+        u.dataNascita AS u_dataNascita, u.genere AS u_genere,
+        u.email AS u_email, u.password AS u_password,
+        r.id AS r_id, r.tipo AS r_tipo,
+        sc.id AS sc_id, sc.esito AS sc_esito
+        FROM conto c
+        LEFT JOIN utente u ON c.codUtente = u.id
+        LEFT JOIN ruolo r ON u.id = r.id
+        LEFT JOIN statoconto sc ON c.codStatoConto = sc.id
+        WHERE u.id = #{userId}
+    </select>
+
+    <select id="findById" resultMap="contoUtenteResultMap">
+        SELECT c.*, u.id AS u_id, u.nome AS u_nome, u.cognome AS u_cognome,
+        u.dataNascita AS u_dataNascita, u.genere AS u_genere,
+        u.email AS u_email, u.password AS u_password,
+        sc.id AS sc_id, sc.esito AS sc_esito
+        FROM conto c
+        LEFT JOIN utente u ON c.codUtente = u.id
+        LEFT JOIN statoconto sc ON c.codStatoConto = sc.id
+        WHERE c.id = #{id}
+    </select>
+
+</mapper>

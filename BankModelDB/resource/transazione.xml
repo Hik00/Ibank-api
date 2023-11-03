@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="it.exolab.bank.mapper.TransazioneMapper">
+
+		<!-- Secondo select con lo stesso resultMap TransazioneResultMap -->
+	<select id="findById"
+		resultMap="TransazioneResultMap">
+
+		SELECT
+		t.id AS t_id, t.importo, t.data, t.dataEsito,
+		u.id AS u_id, u.nome AS u_nome, u.cognome AS u_cognome, u.datanascita AS
+		u_dataNascita, u.email AS u_email, u.password AS u_password, u.genere
+		AS u_genere,
+		c.id AS c_id, c.iban AS c_iban, c.saldo AS c_saldo, c.dataApertura AS
+		c_dataApertura, c.dataEsito AS c_dataEsito,
+		s.id AS s_id, s.esito AS s_esito,
+		b.id AS b_id, b.nome AS b_nome, b.cognome AS b_cognome,
+		b.ibandestinatario, b.causale, b.codtransazione,
+		z.id AS z_id, z.tipo AS z_tipo
+		FROM transazione t
+		LEFT JOIN utente u ON t.codUtente = u.id
+		LEFT JOIN conto c ON t.codConto = c.id
+		LEFT JOIN statotransazione s ON t.codStato = s.id
+		LEFT JOIN infbonifico b ON t.codInfBonifico = b.id
+		LEFT JOIN tipotransazione z ON t.codTipoTransazione = z.id
+
+		WHERE t.id = #{id}
+	
+	</select>
+	<!-- Primo select con resultMap TransazioneResultMap -->
+	<select id="findAll" resultMap="TransazioneResultMap">
+		SELECT
+		t.id AS t_id, t.importo, t.data, t.dataEsito,
+		u.id AS u_id, u.nome AS u_nome, u.cognome AS u_cognome, u.datanascita AS
+		u_dataNascita, u.email AS u_email, u.password AS u_password, u.genere
+		AS u_genere,
+		c.id AS c_id, c.iban AS c_iban, c.saldo AS c_saldo, c.dataApertura AS
+		c_dataApertura, c.dataEsito AS c_dataEsito,
+		s.id AS s_id, s.esito AS s_esito,
+		b.id AS b_id, b.nome AS b_nome, b.cognome AS b_cognome,
+		b.ibandestinatario, b.causale, b.codtransazione,
+		z.id AS z_id, z.tipo AS z_tipo
+		FROM transazione t
+		LEFT JOIN utente u ON t.codUtente = u.id
+		LEFT JOIN conto c ON t.codConto = c.id
+		LEFT JOIN statotransazione s ON t.codStato = s.id
+		LEFT JOIN infbonifico b ON t.codInfBonifico = b.id
+		LEFT JOIN tipotransazione z ON t.codTipoTransazione = z.id
+	</select>
+
+	<select id="findAllByStato" resultMap="TransazioneResultMap">
+    SELECT
+    t.id AS t_id, t.importo, t.data, t.dataEsito,
+    u.id AS u_id, u.nome AS u_nome, u.cognome AS u_cognome, u.datanascita AS
+    u_dataNascita, u.email AS u_email, u.password AS u_password, u.genere
+    AS u_genere,
+    c.id AS c_id, c.iban AS c_iban, c.saldo AS c_saldo, c.dataApertura AS
+    c_dataApertura, c.dataEsito AS c_dataEsito,
+    s.id AS s_id, s.esito AS s_esito,
+    b.id AS b_id, b.nome AS b_nome, b.cognome AS b_cognome,
+    b.ibandestinatario, b.causale, b.codtransazione,
+    z.id AS z_id, z.tipo AS z_tipo
+    FROM transazione t
+    LEFT JOIN utente u ON t.codUtente = u.id
+    LEFT JOIN conto c ON t.codConto = c.id
+    LEFT JOIN statotransazione s ON t.codStato = s.id
+    LEFT JOIN infbonifico b ON t.codInfBonifico = b.id
+    LEFT JOIN tipotransazione z ON t.codTipoTransazione = z.id
+    WHERE s.esito = #{esito} <!-- Cambia 'stato' con il valore desiderato -->
+</select>
+
+<update id="statoToApprovata" parameterType="Transazione">
+  <!-- Utilizza NOW() per ottenere la data corrente -->
+  UPDATE transazione t
+  LEFT JOIN utente u ON t.codUtente = u.id
+  LEFT JOIN conto c ON t.codConto = c.id
+  LEFT JOIN tipotransazione z ON t.codTipoTransazione = z.id
+  SET
+    t.dataEsito = NOW(),
+    t.codStato = 3,
+    c.saldo = CASE
+      WHEN t.codTipoTransazione = 2 THEN c.saldo + t.importo
+      WHEN t.codTipoTransazione = 1 THEN c.saldo - t.importo
+      ELSE c.saldo
+    END
+  WHERE t.id = #{id};
+</update>
+
+<update id="statoToRifiutata" parameterType="Transazione">
+  <!-- Utilizza NOW() per ottenere la data corrente -->
+  UPDATE transazione t
+    LEFT JOIN utente u ON t.codUtente = u.id
+  LEFT JOIN conto c ON t.codConto = c.id
+  LEFT JOIN tipotransazione z ON t.codTipoTransazione = z.id
+  SET
+    t.dataEsito = NOW(),
+    t.codStato = 1
+ 
+    
+  WHERE t.id = #{id};
+</update>
+
+<insert id="insertPrelievo" parameterType="Transazione">
+	INSERT INTO transazione (importo, data, dataEsito, codUtente, codConto, codInfBonifico, codStato, codTipoTransazione)
+    VALUES (#{importo}, #{data}, #{dataEsito}, #{codUtente}, #{codConto}, #{codInfBonifico}, #{codStato}, #{codTipoTransazione})
+</insert>
+
+
+
+
+
+	<!-- Secondo select con lo stesso resultMap TransazioneResultMap -->
+	<select id="transactionsByUtenteId"
+		resultMap="TransazioneResultMap">
+		SELECT
+		t.id AS t_id, t.importo, t.data, t.dataEsito,
+		c.iban AS c_iban,
+		z.tipo AS z_tipo
+		FROM transazione t
+		LEFT JOIN utente u ON t.codUtente = u.id
+		LEFT JOIN conto c ON t.codConto = c.id
+		LEFT JOIN tipotransazione z ON t.codTipoTransazione = z.id
+		WHERE t.codUtente = #{utenteId}
+		ORDER BY t.dataEsito
+	</select>
+
+	<resultMap id="TransazioneResultMap" type="Transazione">
+		<id property="id" column="t_id" />
+		<result property="importo" column="importo" />
+		<result property="data" column="data" />
+		<result property="dataEsito" column="dataEsito" />
+		<association property="utente" javaType="Utente">
+			<id property="id" column="u_id" />
+			<result property="nome" column="u_nome" />
+			<result property="cognome" column="u_cognome" />
+			<result property="dataNascita" column="u_dataNascita" />
+			<result property="genere" column="u_genere" />
+			<result property="email" column="u_email" />
+			<result property="password" column="u_password" />
+			<association property="ruolo"
+				javaType="it.exolab.bank.models.Ruolo">
+				<id property="id" column="r_id" />
+				<result property="tipo" column="r_tipo" />
+			</association>
+		</association>
+		<association property="conto"
+			javaType="it.exolab.bank.models.Conto">
+			<id property="id" column="c_id" />
+			<result property="iban" column="c_iban" />
+			<result property="saldo" column="c_saldo" />
+			<result property="dataApertura" column="c_dataApertura" />
+			<result property="dataEsito" column="c_dataEsito" />
+			<result property="codUtente" column="c_codUtente" />
+			<result property="codStatoConto" column="c_codStatoConto" />
+		</association>
+		<association property="infBonifico"
+			javaType="it.exolab.bank.models.InfBonifico">
+			<id property="id" column="b_id" />
+			<result property="nome" column="b_nome" />
+			<result property="cognome" column="b_cognome" />
+			<result property="ibandestinatario"
+				column="b_ibandestinatario" />
+			<result property="causale" column="b_causale" />
+			<result property="codtransazione" column="b_codtransazione" />
+		</association>
+		<association property="statoTransazione"
+			javaType="it.exolab.bank.models.StatoTransazione">
+			<id property="id" column="s_id" />
+			<result property="esito" column="s_esito" />
+		</association>
+		<association property="tipoTransazione"
+			javaType="it.exolab.bank.models.TipoTransazione">
+			<id property="id" column="z_id" />
+			<result property="tipo" column="z_tipo" />
+		</association>
+	</resultMap>
+
+
+
+
+
+
+
+
+</mapper>

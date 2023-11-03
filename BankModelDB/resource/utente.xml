@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="it.exolab.bank.mapper.UtenteMapper">
+
+<select id="findAll" resultType="Utente">
+  SELECT u.id, u.nome, u.cognome,u.genere, u.dataNascita, u.email, u.password,
+         r.id as 'ruolo.id', r.tipo as 'ruolo.tipo'
+  FROM utente u
+  LEFT JOIN ruolo r ON u.codRuolo = r.id
+</select>
+
+
+<select id="findById" parameterType="int" resultType="it.exolab.bank.models.Utente">
+  SELECT u.id, u.nome, u.cognome, u.genere, u.dataNascita, u.email, u.password,
+         r.id as 'ruolo.id', r.tipo as 'ruolo.tipo'
+  FROM utente u
+  LEFT JOIN ruolo r ON u.codRuolo = r.id
+  WHERE u.id = #{id}
+</select>
+
+<update id="update" parameterType="Utente">
+  UPDATE utente
+  SET
+    nome = #{nome},
+    cognome = #{cognome},
+    dataNascita = #{dataNascita},
+    email = #{email},
+    password = #{password},
+    genere = #{genere}
+  WHERE id = #{id}
+</update>
+
+
+<select id="findByEmailPassword" resultType="Utente">
+  SELECT u.id, u.nome, u.cognome,u.genere, u.dataNascita, u.email, u.password,
+         r.id AS 'ruolo.id', r.tipo AS 'ruolo.tipo'
+  FROM utente u
+  LEFT JOIN ruolo r ON u.codRuolo = r.id
+  WHERE u.email = #{email} AND u.password = #{password}
+</select>
+
+<!-- deleteById-->
+<delete id="deleteById" parameterType="int">
+  DELETE FROM utente
+  WHERE id = #{id}
+</delete>
+
+<!-- Aggiungi il metodo per l'inserimento di un nuovo utente -->
+<insert id="insert" parameterType="Utente">
+  INSERT INTO utente (nome, cognome, dataNascita,  email, password, genere, codRuolo)
+  VALUES (#{nome}, #{cognome}, #{dataNascita}, #{email}, #{password}, #{genere}, #{ruolo.id})
+</insert>
+
+
+
+</mapper>
+

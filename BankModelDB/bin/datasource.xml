@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+<typeAliases>
+
+  <typeAlias alias="Utente" type="it.exolab.bank.models.Utente"/>
+  <typeAlias alias="InfBonifico" type="it.exolab.bank.models.InfBonifico"/>
+  <typeAlias alias="Ruolo" type="it.exolab.bank.models.Ruolo"/>
+  <typeAlias alias="StatoConto" type="it.exolab.bank.models.StatoConto"/>
+  <typeAlias alias="Conto" type="it.exolab.bank.models.Conto"/>
+  <typeAlias alias="StatoTransazione" type="it.exolab.bank.models.StatoTransazione"/>
+   <typeAlias alias="TipoTransazione" type="it.exolab.bank.models.TipoTransazione"/>
+   <typeAlias alias="Transazione" type="it.exolab.bank.models.Transazione"/>
+   
+
+</typeAliases>
+
+
+  <environments default="development">
+    <environment id="development">
+      <transactionManager type="JDBC"/>
+      <dataSource type="POOLED">
+        <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost/bank"/>
+       
+        <property name="username" value="root"/>
+        <property name="password" value="H0r1z0ns.23!"/>
+        
+
+      </dataSource>
+    </environment>
+  </environments>
+  <mappers>
+    <mapper resource="utente.xml"/>
+  	<mapper resource="conto.xml"/>
+  	<mapper resource="transazione.xml"/>
+  
+  </mappers>
+</configuration>
